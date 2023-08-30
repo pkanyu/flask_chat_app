@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flask Chat App</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+</head>
+<body>
+    <h1>Users</h1>
+    <ul>
+        {% for user in users %}
+            <li><a href="{{ url_for('chat', receiver_id=user[0]) }}">{{ user[1] }}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('register') }}">Register</a>
+    <script src="../static/js/main.js"></script>
+</body>
+</html>

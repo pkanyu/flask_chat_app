@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chat</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="chat-box">
+        {% for message in messages %}
+            <p><strong>{{ message.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</strong> - {{ message.content }}</p>
+        {% endfor %}
+    </div>
+    <form id="message-form" >
+        <input type="" id="sender-id" value="{{ session['user_id']}}">
+        <input type="" id="receiver-id" value="{{ receiver_id }}">
+        <input type="text" id="message-input" placeholder="Type a message...">
+        <button type="submit" class="btn">Send</button>
+    </form>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        console.log("main.js loaded");
+
+        $(document).ready(function() {
+        console.log("Document ready");  // Add this line
+
+            $("#message-form").submit(function(event) {
+            console.log("Form submitted");  // Add this line
+
+                event.preventDefault();
+                let sender_id = $("#sender-id").val();
+                let receiver_id = $("#receiver-id").val();
+                let content = $("#message-input").val();
+
+                console.log(sender_id)
+                console.log(receiver_id)
+                console.log(content)
+                
+                            $.ajax({
+                type: "POST",
+                url: "/send_message",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    sender_id: sender_id,
+                    receiver_id: receiver_id,
+                    content: content
+                }),
+
+                success: function(response) {
+                    console.log(response);
+                    // Clear the input field after sending the message
+                    $("#message-input").val("");
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    console.error("Error:", textStatus, errorThrown);
+                }
+            });
+
+            });
+           
+
+            // Function to fetch and display messages
+            function fetchMessages() {
+                let sender_id = $("#sender-id").val();
+                let receiver_id = $("#receiver-id").val();
+
+                $.getJSON(`/get_messages/${sender_id}/${receiver_id}`, function(messages) {
+                    let chatBox = $("#chat-box");
+                    chatBox.empty();
+                    messages.forEach(function(message) {
+                        let timestamp = new Date(message.timestamp).toLocaleTimeString();
+                        let messageHTML = `<p><strong>${timestamp}</strong> - ${message.content}</p>`;
+                        chatBox.append(messageHTML);
+                    });
+
+                    // Scroll to the bottom of the chat
+                    chatBox.scrollTop(chatBox.prop("scrollHeight"));
+                });
+            }
+
+            // Fetch messages every 2 seconds
+            setInterval(fetchMessages, 2000);
+            
+            // Fetch messages on page load
+            fetchMessages();
+        });
+    </script>
+        <script src="../static/js/main.js"></script>
+</body>
+</html>
